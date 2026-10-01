@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>I'm Sorry, Sayang.</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ background:#111;
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;
+ color:white;
+ overflow:hidden
+}
+.phone{
+ width:390px;
+ height:820px;
+ max-width:94vw;
+ max-height:94vh;
+ background:#000;
+ border:7px solid #181818;
+ border-radius:48px;
+ overflow:hidden;
+ position:relative;
+ box-shadow:0 25px 70px #000
+}
+.screen{
+ position:absolute;
+ inset:0;
+ background:linear-gradient(145deg,#202020,#080808);
+ overflow:hidden
+}
+.island{
+ position:absolute;
+ top:10px;
+ left:50%;
+ transform:translateX(-50%);
+ width:105px;
+ height:29px;
+ background:#000;
+ border-radius:20px;
+ z-index:20
+}
+.status{
+ position:absolute;
+ top:12px;
+ left:20px;
+ right:20px;
+ display:flex;
+ justify-content:space-between;
+ font-size:13px;
+ z-index:15
+}
+.icons{letter-spacing:2px}
+
+.lock{
+ position:absolute;
+ inset:0;
+ padding:85px 22px 30px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ transition:.5s
+}
+.lock.hide{
+ opacity:0;
+ transform:scale(1.05);
+ pointer-events:none
+}
+.date{
+ font-size:15px;
+ opacity:.7
+}
+.time{
+ font-size:72px;
+ font-weight:300;
+ letter-spacing:-4px;
+ margin-top:5px
+}
+.lock-note{
+ width:100%;
+ margin-top:55px;
+ padding:15px 17px;
+ border-radius:20px;
+ background:rgba(255,255,255,.12);
+ backdrop-filter:blur(20px);
+ cursor:pointer
+}
+.note-top{
+ display:flex;
+ gap:10px;
+ align-items:center;
+ font-size:12px;
+ opacity:.75
+}
+.avatar{
+ width:35px;
+ height:35px;
+ border-radius:50%;
+ background:linear-gradient(135deg,#555,#111);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold
+}
+.note-title{
+ font-size:15px;
+ margin-top:7px
+}
+.note-text{
+ font-size:13px;
+ opacity:.7;
+ margin-top:3px
+}
+.swipe{
+ position:absolute;
+ bottom:20px;
+ font-size:11px;
+ opacity:.4
+}
+
+.messages{
+ position:absolute;
+ inset:0;
+ display:none;
+ background:#fff;
+ color:#111
+}
+.messages.active{display:block}
+.chat-head{
+ height:86px;
+ padding:39px 17px 10px;
+ display:flex;
+ align-items:center;
+ gap:10px;
+ border-bottom:1px solid #ddd;
+ background:rgba(255,255,255,.94);
+ position:relative;
+ z-index:5
+}
+.back{font-size:25px;color:#1683ff}
+.head-avatar{
+ width:35px;
+ height:35px;
+ border-radius:50%;
+ background:#333;
+ color:white;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold
+}
+.head-name{
+ font-weight:600;
+ font-size:15px
+}
+.head-status{
+ font-size:10px;
+ color:#888;
+ margin-top:2px
+}
+.chat{
+ position:absolute;
+ top:86px;
+ bottom:0;
+ left:0;
+ right:0;
+ overflow-y:auto;
+ padding:18px 13px 35px;
+ background:#fff;
+ scroll-behavior:smooth
+}
+.chat::-webkit-scrollbar{width:0}
+
+.day{
+ text-align:center;
+ color:#999;
+ font-size:11px;
+ margin:5px 0 15px
+}
+.msg{
+ max-width:78%;
+ width:max-content;
+ padding:9px 13px;
+ border-radius:19px;
+ margin:7px 0;
+ font-size:15px;
+ line-height:1.35;
+ animation:pop .25s ease
+}
+.me{
+ margin-left:auto;
+ background:#1683ff;
+ color:#fff;
+ border-bottom-right-radius:5px
+}
+.typing{
+ width:54px;
+ padding:10px 13px;
+ background:#e9e9ee;
+ border-radius:18px;
+ display:flex;
+ gap:4px;
+ margin:8px 0
+}
+.dot{
+ width:6px;
+ height:6px;
+ background:#888;
+ border-radius:50%;
+ animation:bounce 1s infinite
+}
+.dot:nth-child(2){animation-delay:.15s}
+.dot:nth-child(3){animation-delay:.3s}
+
+@keyframes bounce{
+ 0%,60%,100%{transform:translateY(0)}
+ 30%{transform:translateY(-4px)}
+}
+@keyframes pop{
+ from{opacity:0;transform:translateY(5px)}
+ to{opacity:1;transform:none}
+}
+
+.overlay{
+ position:absolute;
+ inset:0;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ background:rgba(0,0,0,.58);
+ backdrop-filter:blur(8px);
+ z-index:30;
+ padding:25px
+}
+.overlay.show{display:flex}
+.popup{
+ width:100%;
+ padding:27px 22px;
+ border-radius:27px;
+ background:rgba(35,35,35,.96);
+ text-align:center;
+ box-shadow:0 20px 60px #000
+}
+.popup h2{
+ margin:0 0 12px;
+ font-size:22px
+}
+.popup p{
+ color:#bbb;
+ font-size:14px;
+ line-height:1.6;
+ margin:0 0 22px
+}
+button{
+ border:0;
+ background:white;
+ color:#111;
+ padding:12px 22px;
+ border-radius:20px;
+ font-weight:600;
+ cursor:pointer
+}
+
+.final{
+ position:absolute;
+ inset:0;
+ display:none;
+ padding:100px 30px;
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+ text-align:center;
+ background:radial-gradient(circle at top,#343434,#070707 70%)
+}
+.final.show{display:flex}
+.final small{
+ letter-spacing:3px;
+ opacity:.45;
+ font-size:10px
+}
+.final h1{
+ font-size:35px;
+ margin:18px 0;
+ letter-spacing:-1px
+}
+.final p{
+ max-width:300px;
+ color:#aaa;
+ line-height:1.7;
+ font-size:14px
+}
+.heart{
+ margin-top:30px;
+ font-size:22px;
+ opacity:.7
+}
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+<div class="screen">
+
+<div class="island"></div>
+
+<div class="status">
+ <span id="statusTime">9:41</span>
+ <span class="icons">● ◉ ▮</span>
+</div>
+
+<!-- LOCK SCREEN -->
+<div class="lock" id="lock">
+ <div class="date" id="date">Thursday, October 1</div>
+ <div class="time" id="time">9:41</div>
+
+ <div class="lock-note" id="notification">
+  <div class="note-top">
+   <div class="avatar">B</div>
+   <span>MESSAGES</span>
+  </div>
+  <div class="note-title">Brian</div>
+  <div class="note-text">Sayang, I owe you an apology.</div>
+ </div>
+
+ <div class="swipe">tap the notification</div>
+</div>
+
+<!-- MESSAGES -->
+<div class="messages" id="messages">
+
+ <div class="chat-head">
+  <div class="back">‹</div>
+  <div class="head-avatar">J</div>
+  <div>
+   <div class="head-name">Mon chéri</div>
+   <div class="head-status">iMessage</div>
+  </div>
+ </div>
+
+ <div class="chat" id="chat">
+  <div class="day">Today</div>
+ </div>
+
+</div>
+
+<!-- APOLOGY POPUP -->
+<div class="overlay" id="overlay">
+ <div class="popup">
+  <h2>I'm really sorry.</h2>
+  <p>
+   I know saying sorry doesn't magically fix everything.
+   I just wanted you to know that I mean it.
+  </p>
+  <button id="continue">KEEP READING</button>
+ </div>
+</div>
+
+<!-- FINAL -->
+<div class="final" id="final">
+ <small>ONE LAST THING</small>
+
+ <h1>I'm sorry, sayang.</h1>
+
+ <p>
+  I don't expect you to forget it.
+  I just hope you know how genuinely sorry I am.
+  You mean a lot to me, and I never wanted my actions
+  to make you feel otherwise.
+ </p>
+
+ <div class="heart">♡</div>
+</div>
+
+</div>
+</div>
+
+<script>
+
+const conversation = [
+
+"Sayang.",
+
+"I've been thinking about what happened.",
+
+"And yeah... I owe you an apology.",
+
+"I know I messed up.",
+
+"I could give you a hundred explanations, but honestly, none of them would change the fact that I hurt you.",
+
+"So I'm not gonna make excuses for it.",
+
+"I'm just gonna say what I should've said from the start.",
+
+"I'm sorry.",
+
+"Not the casual 'sorry' people throw around just to end an argument.",
+
+"I genuinely mean it.",
+
+"You matter to me, sayang.",
+
+"And the last thing I want is for something I did to make you feel otherwise.",
+
+"I can't promise I'll never make mistakes again.",
+
+"But I can promise I'll try harder to understand, listen, and do better.",
+
+"You deserve that from me.",
+
+"So... yeah.",
+
+"I'm sorry, sayang.",
+
+"I really am."
+
+];
+
+const lock = document.getElementById("lock");
+const messages = document.getElementById("messages");
+const notification = document.getElementById("notification");
+const chat = document.getElementById("chat");
+const overlay = document.getElementById("overlay");
+const finalPage = document.getElementById("final");
+const continueBtn = document.getElementById("continue");
+
+function updateClock(){
+
+ const now = new Date();
+
+ let h = now.getHours();
+ let m = now.getMinutes();
+
+ h = h.toString().padStart(2,"0");
+ m = m.toString().padStart(2,"0");
+
+ document.getElementById("time").textContent = h + ":" + m;
+ document.getElementById("statusTime").textContent = h + ":" + m;
+
+ const options = {
+  weekday:"long",
+  month:"long",
+  day:"numeric"
+ };
+
+ document.getElementById("date").textContent =
+  now.toLocaleDateString("en-US",options);
+}
+
+updateClock();
+setInterval(updateClock,1000);
+
+
+function typing(){
+
+ const t = document.createElement("div");
+
+ t.className = "typing";
+ t.id = "typing";
+
+ t.innerHTML = `
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+ `;
+
+ chat.appendChild(t);
+
+ chat.scrollTop = chat.scrollHeight;
+}
+
+
+function removeTyping(){
+
+ const t = document.getElementById("typing");
+
+ if(t) t.remove();
+}
+
+
+function addMessage(text){
+
+ const msg = document.createElement("div");
+
+ msg.className = "msg me";
+ msg.textContent = text;
+
+ chat.appendChild(msg);
+
+ setTimeout(()=>{
+  chat.scrollTop = chat.scrollHeight;
+ },50);
+}
+
+
+async function startChat(){
+
+ for(let i=0;i<conversation.length;i++){
+
+  typing();
+
+  await new Promise(resolve =>
+   setTimeout(resolve,900)
+  );
+
+  removeTyping();
+
+  addMessage(conversation[i]);
+
+  await new Promise(resolve =>
+   setTimeout(resolve,500)
+  );
+ }
+
+ await new Promise(resolve =>
+  setTimeout(resolve,1000)
+ );
+
+ overlay.classList.add("show");
+}
+
+
+notification.addEventListener("click",()=>{
+
+ lock.classList.add("hide");
+
+ setTimeout(()=>{
+
+  messages.classList.add("active");
+
+  startChat();
+
+ },450);
+
+});
+
+
+continueBtn.addEventListener("click",()=>{
+
+ overlay.classList.remove("show");
+
+ messages.style.display="none";
+
+ finalPage.classList.add("show");
+
+});
+
+
+/* swipe up juga bisa membuka */
+
+let startY = 0;
+
+lock.addEventListener("touchstart",(e)=>{
+
+ startY = e.touches[0].clientY;
+
+});
+
+
+lock.addEventListener("touchend",(e)=>{
+
+ const endY = e.changedTouches[0].clientY;
+
+ if(startY-endY > 60){
+
+  notification.click();
+
+ }
+
+});
+
+</script>
+
+</body>
+  </html>
